@@ -5,6 +5,7 @@
 package frc.sim;
 
 import com.revrobotics.sim.SparkMaxSim;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
@@ -52,7 +53,9 @@ public class RotationModel implements AutoCloseable {
     // In this method, we update our simulation of what our arm is doing
     // First, we set our "input" (voltage)
     double inputVoltage = rotationSubsystem.getVoltageCommand();
-    rotationSim.setInput(inputVoltage);
+    // Apply a deadband to the input voltage to simulate static friction.
+    rotationSim.setInput(
+        MathUtil.applyDeadband(inputVoltage, RotationSimConstants.SIMULATED_KS, 12.0));
 
     // Next, we update it. The standard loop time is 20ms.
     rotationSim.update(0.020);

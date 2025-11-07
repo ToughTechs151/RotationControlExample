@@ -20,5 +20,6 @@ public final class Constants {
 
     public static final double MOTOR_MOI_IN_LBS2 = 2.0;
     public static final double MOTOR_MOI_KG_METERS2 = MOTOR_MOI_IN_LBS2 * POUND_IN2_TO_KG_METERS2;
+    public static final double SIMULATED_KS = 0.2;
   }
 }

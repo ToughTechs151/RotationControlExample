@@ -35,7 +35,7 @@ import frc.robot.util.TunableNumber;
  * the rotation at the current position, and shift the rotation's position up or down by a fixed
  * increment.
  *
- * <p>The RotationSubsystem class provides a constructor where hardware dependiencies are passed in
+ * <p>The RotationSubsystem class provides a constructor where hardware dependencies are passed in
  * to allow access for testing. There is also a method provided to create default hardware when
  * those details are not needed outside of the subsystem.
  *
@@ -51,8 +51,8 @@ import frc.robot.util.TunableNumber;
  * // Create a new instance of RotationSubsystem using default hardware
  * RotationSubsystem rotationSubsystem = new RotationSubsystem(initializeHardware());
  *
- * // Move the rotation to a specific position
- * Command moveToPositionCommand = rotationSubsystem.moveToPosition(1.0);
+ * // Move the rotation to a specific position (degrees)
+ * Command moveToPositionCommand = rotationSubsystem.moveToPosition(45.0);
  * moveToPositionCommand.schedule();
  *
  * // Hold the rotation at the current position
@@ -80,14 +80,17 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
   private ProfiledPIDController rotationController =
       new ProfiledPIDController(
           RotationConstants.ROTATION_KP,
-          0.0,
-          0.0,
+          RotationConstants.ROTATION_KI,
+          RotationConstants.ROTATION_KD,
           new TrapezoidProfile.Constraints(
               RotationConstants.ROTATION_MAX_VELOCITY_DEG_PER_SEC,
               RotationConstants.ROTATION_MAX_ACCELERATION_DEG_PER_SEC2));
 
   private PIDController rotationPIDController =
-      new PIDController(RotationConstants.ROTATION_KP, 0.0, 0.0);
+      new PIDController(
+          RotationConstants.ROTATION_KP,
+          RotationConstants.ROTATION_KI,
+          RotationConstants.ROTATION_KD);
 
   private SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(
@@ -102,6 +105,8 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
 
   // Setup tunable numbers for the rotation.
   private TunableNumber kp = new TunableNumber("RotationKP", RotationConstants.ROTATION_KP);
+  private TunableNumber ki = new TunableNumber("RotationKI", RotationConstants.ROTATION_KI);
+  private TunableNumber kd = new TunableNumber("RotationKD", RotationConstants.ROTATION_KD);
   private TunableNumber ks = new TunableNumber("RotationKS", RotationConstants.ROTATION_KS);
   private TunableNumber kv =
       new TunableNumber("RotationKV", RotationConstants.ROTATION_KV_VOLTS_PER_DEG_PER_SEC);
@@ -369,8 +374,8 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
   private void loadTunableNumbers() {
 
     // Read values for PID controller
-    rotationController.setP(kp.get());
-    rotationPIDController.setP(kp.get());
+    rotationController.setPID(kp.get(), ki.get(), kd.get());
+    rotationPIDController.setPID(kp.get(), ki.get(), kd.get());
 
     // Read values for Trapezoid Profile and update
     rotationController.setConstraints(

@@ -39,6 +39,8 @@ public final class Constants {
 
     // Constants tunable through TunableNumbers
     public static final double ROTATION_KP = 24.0 / 90.0;
+    public static final double ROTATION_KI = 0.0;
+    public static final double ROTATION_KD = 0.0;
     public static final double ROTATION_KS = 0.0;
     public static final double ROTATION_KV_VOLTS_PER_DEG_PER_SEC = 0.12;
     public static final double ROTATION_MAX_VELOCITY_DEG_PER_SEC = 15.0;
