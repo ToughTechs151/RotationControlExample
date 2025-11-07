@@ -1,0 +1,24 @@
+package frc.sim;
+
+import edu.wpi.first.math.util.Units;
+
+/** Constants utility class for the simulation. */
+public final class Constants {
+
+  private Constants() {
+    throw new IllegalStateException("Utility class");
+  }
+
+  public static final double POUND_IN2_TO_KG_METERS2 =
+      Units.lbsToKilograms(1) * Math.pow(Units.inchesToMeters(1), 2);
+
+  /** Rotation simulation constants. */
+  public static final class RotationSimConstants {
+    private RotationSimConstants() {
+      throw new IllegalStateException("RotationSimConstants Utility Class");
+    }
+
+    public static final double MOTOR_MOI_IN_LBS2 = 2.0;
+    public static final double MOTOR_MOI_KG_METERS2 = MOTOR_MOI_IN_LBS2 * POUND_IN2_TO_KG_METERS2;
+  }
+}
