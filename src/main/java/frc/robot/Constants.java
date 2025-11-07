@@ -30,6 +30,9 @@ public final class Constants {
       throw new IllegalStateException("RotationConstants Utility Class");
     }
 
+    // Set this to use the profiled PID controller, otherwise a regular PID controller is used.
+    public static final boolean USE_PROFILED = false;
+
     // These are fake gains; in actuality these must be determined individually for each robot
     public static final int MOTOR_PORT = 8;
     public static final int CURRENT_LIMIT = 40;

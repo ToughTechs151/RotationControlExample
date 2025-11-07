@@ -30,8 +30,7 @@ public class RobotContainer {
   private CommandXboxController driverController =
       new CommandXboxController(OIConstants.DRIVER_CONTROLLER_PORT);
 
-  // Now all the subsystems.
-  // The Rotation.
+  // The Rotation subsystem
   private final RotationSubsystem robotRotation =
       new RotationSubsystem(RotationSubsystem.initializeHardware());
 

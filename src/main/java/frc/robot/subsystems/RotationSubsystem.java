@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -57,42 +58,7 @@ import frc.robot.util.TunableNumber;
  * // Hold the rotation at the current position
  * Command holdPositionCommand = rotationSubsystem.holdPosition();
  * holdPositionCommand.schedule();
- *
- * }
- *
- * Code Analysis:
- * - Main functionalities:
- *   - Control the movement of an rotation using a Profiled PID Controller
- *   - Move the rotation to a specific position
- *   - Hold the rotation at the current position
- * - Methods:
- *   - {@code periodic()}: Updates the SmartDashboard with information about the rotation's state.
- *   - {@code useOutput()}: Generates the motor command using the PID controller and feedforward.
- *   - {@code moveToPosition(double goal)}: Returns a Command that moves the rotation to a new
- *     position.
- *   - {@code holdPosition()}: Returns a Command that holds the rotation at the last goal position.
- *   - {@code setGoalPosition(double goal)}: Sets the goal state for the subsystem.
- *   - {@code atGoalPosition()}: Returns whether the rotation has reached the goal position.
- *   - {@code enable()}: Enables the PID control of the rotation.
- *   - {@code disable()}: Disables the PID control of the rotation.
- *   - {@code getMeasurement()}: Returns the rotation position for PID control and logging.
- *   - {@code getVoltageCommand()}: Returns the motor commanded voltage.
- *   - {@code loadTunableNumbers()}: Loads the preferences for tuning the controller.
- *   - {@code close()}: Closes any objects that support it.
- *   - Fields:
- *   - {@code private final SparkMax motor}: The motor used to control the rotation.
- *   - {@code private final RelativeEncoder encoder}: The encoder used to measure the rotation's
- *     position.
- *   - {@code private ProfiledPIDController rotationController}: The PID controller used to
- *     control the rotation's movement.
- *   - {@code private rotationFeedforward feedforward}: The feedforward controller used to
- *     calculate the motor output.
- *   - {@code private double output}: The output of the PID controller.
- *   - {@code private TrapezoidProfile.State setpoint}: The setpoint of the PID controller.
- *   - {@code private double newFeedforward}: The calculated feedforward value.
- *   - {@code private boolean rotationEnabled}: A flag indicating whether the rotation is enabled.
- *   - {@code private double voltageCommand}: The motor commanded voltage.
- * </pre>
+ * }</pre>
  */
 public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
 
@@ -119,6 +85,9 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
           new TrapezoidProfile.Constraints(
               RotationConstants.ROTATION_MAX_VELOCITY_DEG_PER_SEC,
               RotationConstants.ROTATION_MAX_ACCELERATION_DEG_PER_SEC2));
+
+  private PIDController rotationPIDController =
+      new PIDController(RotationConstants.ROTATION_KP, 0.0, 0.0);
 
   private SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(
@@ -156,6 +125,9 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
 
     // Set tolerances that will be used to determine when the rotation is at the goal position.
     rotationController.setTolerance(
+        RotationConstants.POSITION_TOLERANCE_DEGREES, RotationConstants.VELOCITY_TOLERANCE_RPM);
+
+    rotationPIDController.setTolerance(
         RotationConstants.POSITION_TOLERANCE_DEGREES, RotationConstants.VELOCITY_TOLERANCE_RPM);
 
     disable();
@@ -226,14 +198,23 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
   /** Generate the motor command using the PID controller output and feedforward. */
   public void useOutput() {
     if (rotationEnabled) {
-      // Calculate the next set point along the profile to the goal and the next PID output based
-      // on the set point and current position.
-      output = rotationController.calculate(getMeasurement());
-      setpoint = rotationController.getSetpoint();
 
-      // Calculate the feedforward to move the rotation at the desired velocity and offset
-      // the effect of gravity. Voltage for acceleration is not used.
-      newFeedforward = feedforward.calculate(setpoint.velocity);
+      if (RotationConstants.USE_PROFILED) {
+        // Calculate the next set point along the profile to the goal and the next PID output based
+        // on the set point and current position.
+        output = rotationController.calculate(getMeasurement());
+        setpoint = rotationController.getSetpoint();
+
+        // Calculate the feedforward to move the rotation at the desired velocity and offset
+        // the effect of gravity. Voltage for acceleration is not used.
+        newFeedforward = feedforward.calculate(setpoint.velocity);
+      } else {
+        // Use a standard PID controller without motion profiling
+        output = rotationPIDController.calculate(getMeasurement());
+        // Calculate the feedforward to move the rotation at the desired velocity and offset
+        // the effect of gravity. Voltage for acceleration is not used.
+        newFeedforward = 0.0; // No velocity feedforward without profiling
+      }
 
       // Add the feedforward to the PID output to get the motor output
       voltageCommand = output + newFeedforward;
@@ -280,13 +261,17 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
                 Constants.RotationConstants.ROTATION_MAX_POSITION_DEGREES),
             0));
 
+    rotationPIDController.setSetpoint(goal);
+
     // Call enable() to configure and start the controller in case it is not already enabled.
     enable();
   }
 
   /** Returns whether the rotation has reached the goal position and velocity is within limits. */
   public boolean atGoalPosition() {
-    return rotationController.atGoal();
+    return RotationConstants.USE_PROFILED
+        ? rotationController.atGoal()
+        : rotationPIDController.atSetpoint();
   }
 
   /**
@@ -302,6 +287,7 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
 
       // Reset the PID controller to clear any previous state
       rotationController.reset(getMeasurement());
+      rotationPIDController.reset();
       rotationEnabled = true;
 
       DataLogManager.log(
@@ -384,6 +370,7 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
 
     // Read values for PID controller
     rotationController.setP(kp.get());
+    rotationPIDController.setP(kp.get());
 
     // Read values for Trapezoid Profile and update
     rotationController.setConstraints(
