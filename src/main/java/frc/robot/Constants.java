@@ -20,9 +20,6 @@ public final class Constants {
   // Set to true to enable using Tunable Numbers
   public static final boolean TUNING_MODE = true;
 
-  // Set to true to log each frame of command execution. To false to disable.
-  public static final boolean COMMAND_EXECUTE_LOG = false;
-
   /** Constants used for the Rotation subsystem. */
   public static final class RotationConstants {
 
@@ -33,24 +30,22 @@ public final class Constants {
     // Set this to use the profiled PID controller, otherwise a regular PID controller is used.
     public static final boolean USE_PROFILED = false;
 
-    // These are fake gains; in actuality these must be determined individually for each robot
-    public static final int MOTOR_PORT = 8;
+    public static final int MOTOR_PORT = 1;
     public static final int CURRENT_LIMIT = 40;
 
+    public static final double MOTOR_GEAR_RATIO =
+        12.0; // Ratio of motor rotations to output rotations after gearing and pulleys
+    public static final double MOTOR_ROTATIONS_PER_ENCODER_ROTATION = 1.0 / MOTOR_GEAR_RATIO;
+
     // Constants tunable through TunableNumbers
-    public static final double ROTATION_KP = 24.0 / 90.0;
+    // These are fake gains for simulation; these must be determined individually for each robot
+    public static final double ROTATION_KP = 24.0 / 90.0 * MOTOR_GEAR_RATIO;
     public static final double ROTATION_KI = 0.0;
     public static final double ROTATION_KD = 0.0;
     public static final double ROTATION_KS = 0.0;
-    public static final double ROTATION_KV_VOLTS_PER_DEG_PER_SEC = 0.12;
-    public static final double ROTATION_MAX_VELOCITY_DEG_PER_SEC = 15.0;
-    public static final double ROTATION_MAX_ACCELERATION_DEG_PER_SEC2 = 60.0;
-
-    public static final double MOTOR_GEAR_RATIO =
-        1.0; // Ratio of motor rotations to output rotations
-    public static final double MOTOR_ROTATIONS_PER_ENCODER_ROTATION = 1.0 / MOTOR_GEAR_RATIO;
-    public static final double MOTOR_TOLERANCE_RPM = 100;
-    public static final double JOYSTICK_DEADBAND = 0.1;
+    public static final double ROTATION_KV_VOLTS_PER_DEG_PER_SEC = 0.12 * MOTOR_GEAR_RATIO;
+    public static final double ROTATION_MAX_VELOCITY_DEG_PER_SEC = 30.0;
+    public static final double ROTATION_MAX_ACCELERATION_DEG_PER_SEC2 = 120.0;
 
     // Encoder is reset to measure 0 at the starting position.
     public static final double ROTATION_OFFSET_DEGREES = 0.0;
