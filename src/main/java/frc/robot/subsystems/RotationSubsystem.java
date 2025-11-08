@@ -157,9 +157,9 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
     // rotation position will only be correct if it is in the down position when
     // the subsystem is constructed.
     motorConfig.encoder.positionConversionFactor(
-        RotationConstants.MOTOR_ROTATIONS_PER_ENCODER_ROTATION);
+        RotationConstants.OUTPUT_DEGREES_PER_ENCODER_ROTATION);
     motorConfig.encoder.velocityConversionFactor(
-        RotationConstants.MOTOR_ROTATIONS_PER_ENCODER_ROTATION);
+        RotationConstants.OUTPUT_DEG_PER_SEC_PER_ENCODER_RPM);
 
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -222,7 +222,7 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
       }
 
       // Add the feedforward to the PID output to get the motor output
-      voltageCommand = output + newFeedforward;
+      voltageCommand = MathUtil.clamp(output + newFeedforward, -12.0, 12.0);
 
     } else {
       // If the rotation isn't enabled, set the motor command to 0. In this state the rotation

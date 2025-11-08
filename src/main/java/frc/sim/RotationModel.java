@@ -28,9 +28,7 @@ public class RotationModel implements AutoCloseable {
 
   private final LinearSystem<N2, N1, N2> plant =
       LinearSystemId.createDCMotorSystem(
-          rotationGearbox,
-          RotationSimConstants.MOTOR_MOI_KG_METERS2,
-          RotationConstants.MOTOR_GEAR_RATIO);
+          rotationGearbox, RotationSimConstants.MOTOR_MOI_KG_METERS2, RotationConstants.GEAR_RATIO);
 
   private final DCMotorSim rotationSim = new DCMotorSim(plant, rotationGearbox);
 
@@ -60,9 +58,9 @@ public class RotationModel implements AutoCloseable {
     // Next, we update it. The standard loop time is 20ms.
     rotationSim.update(0.020);
 
-    // Finally, we  run the spark simulations, set our simulated encoder's readings and save the
-    // current so it can be retrieved later.
-    sparkSim.iterate(rotationSim.getAngularVelocityRPM(), 12.0, 0.02);
+    // Finally, we  run the spark simulations and save the current so it can be retrieved later. 
+    // Encoder velocity is scaled to deg/sec at the output, so we need to convert.
+    sparkSim.iterate(360.0 * rotationSim.getAngularVelocityRPM() / 60.0, 12.0, 0.02);
     simCurrent =
         rotationGearbox.getCurrent(rotationSim.getAngularVelocityRadPerSec(), inputVoltage);
   }
