@@ -31,9 +31,6 @@ public class Robot extends TimedRobot {
     // Initialize the data logging.
     datalog = DataLogging.getInstance();
 
-    // Print our splash screen info.
-    Splash.printAllStatusFiles();
-
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
