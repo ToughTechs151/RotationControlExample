@@ -58,7 +58,7 @@ public class RotationModel implements AutoCloseable {
     // Next, we update it. The standard loop time is 20ms.
     rotationSim.update(0.020);
 
-    // Finally, we  run the spark simulations and save the current so it can be retrieved later. 
+    // Finally, we  run the spark simulations and save the current so it can be retrieved later.
     // Encoder velocity is scaled to deg/sec at the output, so we need to convert.
     sparkSim.iterate(360.0 * rotationSim.getAngularVelocityRPM() / 60.0, 12.0, 0.02);
     simCurrent =

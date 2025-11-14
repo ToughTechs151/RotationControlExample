@@ -128,6 +128,17 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
 
     initMotor();
 
+    // Configure the controllers for continuous operation with angle wrapping at min/max
+    // angle if enabled.
+    if (RotationConstants.CONTINUOUS) {
+      rotationController.enableContinuousInput(
+          RotationConstants.ROTATION_MIN_POSITION_DEGREES,
+          Constants.RotationConstants.ROTATION_MAX_POSITION_DEGREES);
+      rotationPIDController.enableContinuousInput(
+          RotationConstants.ROTATION_MIN_POSITION_DEGREES,
+          Constants.RotationConstants.ROTATION_MAX_POSITION_DEGREES);
+    }
+
     // Set tolerances that will be used to determine when the rotation is at the goal position.
     rotationController.setTolerance(
         RotationConstants.POSITION_TOLERANCE_DEGREES, RotationConstants.VELOCITY_TOLERANCE_RPM);
@@ -154,7 +165,7 @@ public class RotationSubsystem extends SubsystemBase implements AutoCloseable {
     motorConfig.smartCurrentLimit(RotationConstants.CURRENT_LIMIT);
 
     // Setup the encoder scale factors. Since this is a relative encoder,
-    // rotation position will only be correct if it is in the down position when
+    // rotation position will only be correct if it is in the starting (zero) position when
     // the subsystem is constructed.
     motorConfig.encoder.positionConversionFactor(
         RotationConstants.OUTPUT_DEGREES_PER_ENCODER_ROTATION);

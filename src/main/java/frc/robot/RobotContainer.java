@@ -59,13 +59,21 @@ public class RobotContainer {
                 .moveToPosition(Constants.RotationConstants.ROTATION_START_POSITION_DEGREES)
                 .withName("Rotation: Move to Start Position"));
 
-    // Move the rotation to the end position when the 'B' button is pressed.
+    // Move the rotation to the forward position when the 'B' button is pressed.
     driverController
         .b()
         .onTrue(
             robotRotation
-                .moveToPosition(Constants.RotationConstants.ROTATION_END_POSITION_DEGREES)
-                .withName("Rotation: Move to End Position"));
+                .moveToPosition(Constants.RotationConstants.ROTATION_FORWARD_POSITION_DEGREES)
+                .withName("Rotation: Move to Forward Position"));
+
+    // Move the rotation to the back position when the 'Y' button is pressed.
+    driverController
+        .y()
+        .onTrue(
+            robotRotation
+                .moveToPosition(Constants.RotationConstants.ROTATION_BACK_POSITION_DEGREES)
+                .withName("Rotation: Move to Back Position"));
 
     // Disable the rotation controller when the 'X' button is pressed.
     // NOTE: This is intended for initial rotation testing and should be removed in the final robot

@@ -30,6 +30,10 @@ public final class Constants {
     // Set this to use the profiled PID controller, otherwise a regular PID controller is used.
     public static final boolean USE_PROFILED = false;
 
+    // Set this for a mechanism that can rotate fully with no stops. The angle wraps between
+    // the minimum and maximum angle, e.g. +180 / -180 degrees
+    public static final boolean CONTINUOUS = false;
+
     public static final int MOTOR_PORT = 1;
     public static final int CURRENT_LIMIT = 40;
 
@@ -52,14 +56,15 @@ public final class Constants {
 
     // Encoder is reset to measure 0 at the starting position.
     public static final double ROTATION_OFFSET_DEGREES = 0.0;
-    public static final double ROTATION_MIN_POSITION_DEGREES = 0.0;
-    public static final double ROTATION_MAX_POSITION_DEGREES = 90.0;
+    public static final double ROTATION_MIN_POSITION_DEGREES = -180.0;
+    public static final double ROTATION_MAX_POSITION_DEGREES = 180.0;
 
     public static final double POSITION_TOLERANCE_DEGREES = 1.0;
     public static final double VELOCITY_TOLERANCE_RPM = 1.0;
 
     public static final double ROTATION_START_POSITION_DEGREES = 0.0;
-    public static final double ROTATION_END_POSITION_DEGREES = 90.0;
+    public static final double ROTATION_FORWARD_POSITION_DEGREES = 120.0;
+    public static final double ROTATION_BACK_POSITION_DEGREES = -120.0;
   }
 
   /** Constants used for assigning operator input. */
